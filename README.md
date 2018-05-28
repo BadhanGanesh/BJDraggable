@@ -1,7 +1,7 @@
 # BJDraggable
 A simple protocol *(No need to subclass, no need to implement methods and properties yourself. Just drop-in the BJDraggable file to your project and all done)* utilizing the powerful `UIKitDynamics` API, which makes **ANY** `UIView` draggable within a boundary view that acts as collision body, with a single method call.
 
-![BJDraggable Demo](https://media.giphy.com/media/XI7CLOF4CfS7JxK22b/giphy.gif)
+![BJDraggable Demo](https://media.giphy.com/media/yvXWwDtvnhLN7z45vE/giphy.gif)
 
 
 ## Usage
