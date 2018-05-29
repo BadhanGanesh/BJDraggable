@@ -35,13 +35,7 @@ var kPanGestureKey: String = "PanGestureKey"
 ///A simple protocol *(No need to implement methods and properties yourself. Just drop-in the BJDraggable file to your project and all done)* utilizing the powerful `UIKitDynamics` API, which makes **ANY** `UIView` draggable within a boundary view that acts as collision body, with a single method call.
 @objc protocol BJDraggable: class {
     
-    /////Properties
-    var referenceView:UIView? { get set }
-    var animator:UIDynamicAnimator? { get set }
-    var attachmentBehaviour:UIAttachmentBehavior? { get set }
-    
     /////Methods
-    func panGestureHandler(_ gesture:UIPanGestureRecognizer)
     @objc func addDraggability(withinView referenceView: UIView)
     @objc func addDraggability(withinView referenceView: UIView, withMargin insets:UIEdgeInsets)
     @objc func removeDraggability()
@@ -52,7 +46,7 @@ var kPanGestureKey: String = "PanGestureKey"
 ///This extension of UIView implements the `BJDraggable` protocol's stubs
 extension UIView: BJDraggable {
     
-    var referenceView: UIView? {
+    fileprivate var referenceView: UIView? {
         get {
             return objc_getAssociatedObject(self, &kReferenceViewKey) as? UIView
         }
@@ -61,7 +55,7 @@ extension UIView: BJDraggable {
         }
     }
     
-    var animator: UIDynamicAnimator? {
+    fileprivate var animator: UIDynamicAnimator? {
         get {
             return objc_getAssociatedObject(self, &kDynamicAnimatorKey) as? UIDynamicAnimator
         }
@@ -70,7 +64,7 @@ extension UIView: BJDraggable {
         }
     }
     
-    var attachmentBehaviour: UIAttachmentBehavior? {
+    fileprivate var attachmentBehaviour: UIAttachmentBehavior? {
         get {
             return objc_getAssociatedObject(self, &kAttachmentBehaviourKey) as? UIAttachmentBehavior
         }
@@ -79,7 +73,7 @@ extension UIView: BJDraggable {
         }
     }
     
-    var panGestureRecognizer: UIPanGestureRecognizer? {
+    fileprivate var panGestureRecognizer: UIPanGestureRecognizer? {
         get {
             return objc_getAssociatedObject(self, &kPanGestureKey) as? UIPanGestureRecognizer
         }
@@ -147,7 +141,7 @@ extension UIView: BJDraggable {
     }
     
     ///Supposed to be an internal handler method that handles the pan gesture recognizer.
-    final func panGestureHandler(_ gesture: UIPanGestureRecognizer) {
+    @objc final func panGestureHandler(_ gesture: UIPanGestureRecognizer) {
         guard let referenceView = self.referenceView else { return }
         let touchPoint = gesture.location(in: referenceView)
         self.attachmentBehaviour?.anchorPoint = touchPoint
