@@ -43,7 +43,7 @@ var kPanGestureKey: String = "PanGestureKey"
 }
 
 
-///This extension of UIView implements the `BJDraggable` protocol's stubs
+///Implementation of `BJDraggable` protocol
 extension UIView: BJDraggable {
     
     fileprivate var referenceView: UIView? {
@@ -100,23 +100,21 @@ extension UIView: BJDraggable {
         //Important step. Pan gesture recognizer will not work without this being true.
         self.isUserInteractionEnabled = true
         
-        //Basic thing taken care first. Add pan gesture recognizer to `self`.
         let panGestureRecognizer = UIPanGestureRecognizer.init(target: self, action: #selector(panGestureHandler(_:)))        
         self.addGestureRecognizer(panGestureRecognizer)
         
-        //Create an attachmentBehaviour for attaching 'self' to a specific point while dragging. See `panGestureHandler` method for its usage.
         let point = self.center
+        
+        //See `panGestureHandler` method for attachmentBehaviour usage.
         let attachmentBehaviour = UIAttachmentBehavior.init(item: self, attachedToAnchor: point)
         attachmentBehaviour.frequency = 0
         attachmentBehaviour.damping = 0
         
-        //Create a collision behaviour that makes the view ('self') resistant against the walls of the reference view. This will make the view collide against the boundary.
         let collisionBehaviour = UICollisionBehavior.init(items: [self])
         collisionBehaviour.translatesReferenceBoundsIntoBoundary = true
         collisionBehaviour.collisionMode = .boundaries
         collisionBehaviour.setTranslatesReferenceBoundsIntoBoundary(with: insets)
         
-        //This `UIDynamicAnimator` object governs and manages various behaviours we add to it. It takes the behaviours and animates the view according to the rules we specified in each behaviour.
         let animator = UIDynamicAnimator.init(referenceView: referenceView)
         animator.addBehavior(attachmentBehaviour)
         animator.addBehavior(collisionBehaviour)
@@ -133,14 +131,12 @@ extension UIView: BJDraggable {
         if let recognizer = self.panGestureRecognizer { self.removeGestureRecognizer(recognizer) }
         self.animator?.removeAllBehaviors()
         
-        //Nil out vars for memory safety and for removing the association, so that when we call `addDraggability` again, we will be creating new instances.
         self.referenceView = nil
         self.attachmentBehaviour = nil
         self.animator = nil
         self.panGestureRecognizer = nil
     }
     
-    ///Supposed to be an internal handler method that handles the pan gesture recognizer.
     @objc final func panGestureHandler(_ gesture: UIPanGestureRecognizer) {
         guard let referenceView = self.referenceView else { return }
         let touchPoint = gesture.location(in: referenceView)
