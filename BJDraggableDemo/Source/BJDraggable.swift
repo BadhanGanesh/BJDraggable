@@ -97,6 +97,9 @@ extension UIView: BJDraggable {
      */
     final func addDraggability(withinView referenceView: UIView, withMargin insets:UIEdgeInsets) {
         
+        //We check if we had already added the drag power to view. If yes, we return and do nothing.
+        guard self.animator == nil else { return }
+        
         //Important step. Pan gesture recognizer will not work without this being true.
         self.isUserInteractionEnabled = true
         
