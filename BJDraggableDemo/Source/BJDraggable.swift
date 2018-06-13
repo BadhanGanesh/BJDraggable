@@ -31,6 +31,7 @@ var kReferenceViewKey: String = "ReferenceViewKey"
 var kDynamicAnimatorKey: String = "DynamicAnimatorKey"
 var kAttachmentBehaviourKey: String = "AttachmentBehaviourKey"
 var kPanGestureKey: String = "PanGestureKey"
+var kResetPositionKey: String = "ResetPositionKey"
 
 ///A simple protocol *(No need to implement methods and properties yourself. Just drop-in the BJDraggable file to your project and all done)* utilizing the powerful `UIKitDynamics` API, which makes **ANY** `UIView` draggable within a boundary view that acts as collision body, with a single method call.
 @objc protocol BJDraggable: class {
@@ -45,6 +46,17 @@ var kPanGestureKey: String = "PanGestureKey"
 
 ///Implementation of `BJDraggable` protocol
 extension UIView: BJDraggable {
+    
+    public var shouldResetViewPositionAfterRemovingDraggability: Bool {
+        get {
+            let getValue = (objc_getAssociatedObject(self, &kResetPositionKey) as? Bool)
+            return getValue == nil ? false : getValue!
+        }
+        set {
+            objc_setAssociatedObject(self, &kResetPositionKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            self.translatesAutoresizingMaskIntoConstraints = !newValue
+        }
+    }
     
     fileprivate var referenceView: UIView? {
         get {
@@ -106,10 +118,10 @@ extension UIView: BJDraggable {
         let panGestureRecognizer = UIPanGestureRecognizer.init(target: self, action: #selector(panGestureHandler(_:)))        
         self.addGestureRecognizer(panGestureRecognizer)
         
-        let point = self.center
+        let attachmentAnchorPoint = self.center
         
         //See `panGestureHandler` method for attachmentBehaviour usage.
-        let attachmentBehaviour = UIAttachmentBehavior.init(item: self, attachedToAnchor: point)
+        let attachmentBehaviour = UIAttachmentBehavior.init(item: self, attachedToAnchor: attachmentAnchorPoint)
         attachmentBehaviour.frequency = 0
         attachmentBehaviour.damping = 0
         
@@ -132,6 +144,7 @@ extension UIView: BJDraggable {
     ///Removes the power from you, to drag the view in question
     final func removeDraggability() {
         if let recognizer = self.panGestureRecognizer { self.removeGestureRecognizer(recognizer) }
+        self.translatesAutoresizingMaskIntoConstraints = !self.shouldResetViewPositionAfterRemovingDraggability
         self.animator?.removeAllBehaviors()
         
         self.referenceView = nil

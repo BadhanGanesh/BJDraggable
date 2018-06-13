@@ -36,6 +36,17 @@ self.draggableImageView.addDraggability(withinView: self.view, withMargin: UIEdg
 }
 ```
 
+- If you want the view to move to its original position (respecting its autolayout constraints) after removing draggability like in the example GIF above, set the `shouldResetViewPositionAfterRemovingDraggability` property to `true`. Default value is `false`.
+
+```swift
+override func viewDidLoad() {
+    super.viewDidLoad()
+    self.draggableButton.shouldResetViewPositionAfterRemovingDraggability = true
+    self.draggableImageView.shouldResetViewPositionAfterRemovingDraggability = false
+}
+```
+
+
 ## Limitation
 The dragging mechanism contains one little caveat where the view when dragged against the boundary's edges, it will not slide against it. Instead, the view will stick to it. This one will be addressed and fixed soon.
 
