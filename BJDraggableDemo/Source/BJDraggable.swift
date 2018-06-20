@@ -36,9 +36,22 @@ var kResetPositionKey: String = "ResetPositionKey"
 ///A simple protocol *(No need to implement methods and properties yourself. Just drop-in the BJDraggable file to your project and all done)* utilizing the powerful `UIKitDynamics` API, which makes **ANY** `UIView` draggable within a boundary view that acts as collision body, with a single method call.
 @objc protocol BJDraggable: class {
     
-    /////Methods
+    /**
+     Gives you the power to drag your `UIView` anywhere within a specified view, and collide within its bounds.
+     - parameter referenceView: The boundary view which acts as a wall, and your view will collide with it and would never fall out of bounds hopefully. **Note that the reference view should contain the view that you're trying to add draggability to in its view hierarchy. The app would crash otherwise.**
+     */
     @objc func addDraggability(withinView referenceView: UIView)
+    
+    /**
+     This single method call will give you the power to drag your `UIView` anywhere within a specified view, and collide within its bounds.
+     - parameter referenceView: This is the boundary view which acts as a wall, and your view will collide with it and would never fall out of bounds hopefully. **Note that the reference view should contain the view that you're trying to add draggability to in its view hierarchy. The app would crash otherwise.**
+     - parameter insets: If you want to make the boundary to be offset positively or negatively, you can specify that here. This is nothing but a margin for the boundary.
+     */
     @objc func addDraggability(withinView referenceView: UIView, withMargin insets:UIEdgeInsets)
+    
+    /**
+     Removes the power from you, to drag the view in question
+    */
     @objc func removeDraggability()
     
 }
@@ -94,19 +107,10 @@ extension UIView: BJDraggable {
         }
     }
     
-    /**
-     Gives you the power to drag your `UIView` anywhere within a specified view, and collide within its bounds.
-     - parameter referenceView: The boundary view which acts as a wall, and your view will collide with it and would never fall out of bounds hopefully. **Note that the reference view should contain the view that you're trying to add draggability to in its view hierarchy. The app would crash otherwise.**
-     */
     final func addDraggability(withinView referenceView: UIView) {
         self.addDraggability(withinView: referenceView, withMargin: UIEdgeInsets.init(top: 0, left: 0, bottom: 0, right: 0))
     }
     
-    /**
-     This single method call will give you the power to drag your `UIView` anywhere within a specified view, and collide within its bounds.
-     - parameter referenceView: This is the boundary view which acts as a wall, and your view will collide with it and would never fall out of bounds hopefully. **Note that the reference view should contain the view that you're trying to add draggability to in its view hierarchy. The app would crash otherwise.**
-     - parameter insets: If you want to make the boundary to be offset positively or negatively, you can specify that here. This is nothing but a margin for the boundary.
-     */
     final func addDraggability(withinView referenceView: UIView, withMargin insets:UIEdgeInsets) {
         
         //We check if we had already added the drag power to view. If yes, we return and do nothing.
@@ -141,7 +145,6 @@ extension UIView: BJDraggable {
         self.panGestureRecognizer = panGestureRecognizer
     }
     
-    ///Removes the power from you, to drag the view in question
     final func removeDraggability() {
         if let recognizer = self.panGestureRecognizer { self.removeGestureRecognizer(recognizer) }
         self.translatesAutoresizingMaskIntoConstraints = !self.shouldResetViewPositionAfterRemovingDraggability
