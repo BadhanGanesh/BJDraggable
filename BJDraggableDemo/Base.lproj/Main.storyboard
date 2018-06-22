@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14112" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14269.12" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_0" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14252.5"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -26,7 +26,7 @@
                                 </constraints>
                             </imageView>
                             <button opaque="NO" tag="3" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vWP-Ju-AlT">
-                                <rect key="frame" x="123" y="362" width="75" height="34"/>
+                                <rect key="frame" x="122.5" y="362" width="75" height="34"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                 <state key="normal" title="Drag Me!"/>
                             </button>
@@ -40,9 +40,8 @@
                                     <action selector="removeDraggabilityButtonTouched:" destination="BYZ-38-t0r" eventType="touchUpInside" id="7Bo-VB-BmZ"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Hnl-Tb-pNv">
-                                <rect key="frame" x="75" y="483" width="166" height="38"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Hnl-Tb-pNv">
+                                <rect key="frame" x="77" y="483" width="166" height="38"/>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="21"/>
                                 <state key="normal" title="Add Draggability">
                                     <color key="titleColor" red="0.070588235289999995" green="0.36470588240000001" blue="0.3294117647" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
@@ -60,6 +59,8 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="wbQ-Cn-vdy" secondAttribute="bottom" constant="15" id="Tzl-Da-4pU"/>
                             <constraint firstItem="3CN-pg-MWz" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="ZG8-Ma-WnD"/>
                             <constraint firstItem="vWP-Ju-AlT" firstAttribute="top" secondItem="3CN-pg-MWz" secondAttribute="bottom" constant="8" id="agI-ox-fKJ"/>
+                            <constraint firstItem="wbQ-Cn-vdy" firstAttribute="top" secondItem="Hnl-Tb-pNv" secondAttribute="bottom" constant="-6" id="kUf-ME-YGH"/>
+                            <constraint firstItem="Hnl-Tb-pNv" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="pIi-sF-gAb"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
@@ -73,6 +74,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="GOW.jpg" width="3608" height="2012"/>
+        <image name="GOW.jpg" width="1980" height="1289"/>
     </resources>
 </document>
