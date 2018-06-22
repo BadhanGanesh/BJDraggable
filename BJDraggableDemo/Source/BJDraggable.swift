@@ -179,9 +179,11 @@ extension UIView: BJDraggable {
         self.translatesAutoresizingMaskIntoConstraints = !self.shouldResetViewPositionAfterRemovingDraggability
         self.animator?.removeAllBehaviors()
         
-        for view in (self.referenceView?.subviews)! {
-            if view.tag == 122 || view.tag == 222 || view.tag == 322 || view.tag == 422 {
-                view.removeFromSuperview()
+        if let subviews = self.referenceView?.subviews {
+            for view in subviews {
+                if view.tag == 122 || view.tag == 222 || view.tag == 322 || view.tag == 422 {
+                    view.removeFromSuperview()
+                }
             }
         }
         
