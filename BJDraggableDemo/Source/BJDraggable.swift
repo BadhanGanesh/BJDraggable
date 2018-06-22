@@ -33,6 +33,13 @@ var kAttachmentBehaviourKey: String = "AttachmentBehaviourKey"
 var kPanGestureKey: String = "PanGestureKey"
 var kResetPositionKey: String = "ResetPositionKey"
 
+fileprivate enum BehaviourNames {
+    case main
+    case border
+    case collision
+    case attachment
+}
+
 /**A simple protocol *(No need to implement methods and properties yourself. Just drop-in the BJDraggable file to your project and all done)* utilizing the powerful `UIKitDynamics` API, which makes **ANY** `UIView` draggable within a boundary view that acts as collision body, with a single method call.
  */
 @objc protocol BJDraggable: class {
@@ -149,10 +156,10 @@ extension UIView: BJDraggable {
         /////Behaviours/////
         ////////////////////
         
-        let mainItemBehaviour = get(behaviour: "Main", forView: referenceView, insets: insets, for: collisionItems)!
-        let borderItemsBehaviour = get(behaviour: "Border", forView: referenceView, insets: insets, for: collisionItems)!
-        let collisionBehaviour = get(behaviour: "Collision", forView: referenceView, insets: insets, for: collisionItems)!
-        let attachmentBehaviour = get(behaviour: "Attachment", forView: referenceView, insets: insets, for: collisionItems)!
+        let mainItemBehaviour = get(behaviour: .main, for: referenceView, withInsets: insets, configuredWith: collisionItems)!
+        let borderItemsBehaviour = get(behaviour: .border, for: referenceView, withInsets: insets, configuredWith: collisionItems)!
+        let collisionBehaviour = get(behaviour: .collision, for: referenceView, withInsets: insets, configuredWith: collisionItems)!
+        let attachmentBehaviour = get(behaviour: .attachment, for: referenceView, withInsets: insets, configuredWith: collisionItems)!
         
         //////////////////
         /////Animator/////
@@ -217,35 +224,32 @@ extension UIView: BJDraggable {
         self.attachmentBehaviour?.anchorPoint = touchPoint
     }
     
-    fileprivate func get(behaviour:String, forView referenceView:UIView, insets:UIEdgeInsets, for boundaryCollisionItems:[UIDynamicItem]) -> UIDynamicBehavior? {
+    fileprivate func get(behaviour:BehaviourNames, for referenceView:UIView, withInsets:UIEdgeInsets, configuredWith boundaryCollisionItems:[UIDynamicItem]) -> UIDynamicBehavior? {
         
         let allItems = [self] + boundaryCollisionItems
         
         switch behaviour {
-        case "Border":
+        case .border:
             let borderItemsBehaviour = UIDynamicItemBehavior.init(items: boundaryCollisionItems)
             borderItemsBehaviour.allowsRotation = false
             borderItemsBehaviour.isAnchored = true
             borderItemsBehaviour.friction = 2.0
             return borderItemsBehaviour
-        case "Main":
+        case .main:
             let mainItemBehaviour = UIDynamicItemBehavior.init(items: [self])
             mainItemBehaviour.allowsRotation = false
             mainItemBehaviour.isAnchored = false
             mainItemBehaviour.friction = 2.0
             return mainItemBehaviour
-        case "Collision":
+        case .collision:
             let collisionBehaviour = UICollisionBehavior.init(items: allItems)
             collisionBehaviour.collisionMode = .items
             collisionBehaviour.addBoundary(withIdentifier: "Boundary" as NSCopying, for: self.boundaryPathFor(referenceView))
             return collisionBehaviour
-        case "Attachment":
+        case .attachment:
             let attachmentBehaviour = UIAttachmentBehavior.init(item: self, attachedToAnchor: self.center)
             return attachmentBehaviour
-        default:
-            return nil
         }
-        
     }
     
     //
