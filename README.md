@@ -47,10 +47,6 @@ override func viewDidLoad() {
 ```
 
 
-## Limitation
-The dragging mechanism contains one little caveat where the view when dragged against the boundary's edges, it will not slide against it. Instead, the view will stick to it. This one will be addressed and fixed soon.
-
-
 ## License
 
 This code is distributed under the terms and conditions of the [MIT license](LICENSE).

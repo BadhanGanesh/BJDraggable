@@ -33,7 +33,8 @@ var kAttachmentBehaviourKey: String = "AttachmentBehaviourKey"
 var kPanGestureKey: String = "PanGestureKey"
 var kResetPositionKey: String = "ResetPositionKey"
 
-///A simple protocol *(No need to implement methods and properties yourself. Just drop-in the BJDraggable file to your project and all done)* utilizing the powerful `UIKitDynamics` API, which makes **ANY** `UIView` draggable within a boundary view that acts as collision body, with a single method call.
+/**A simple protocol *(No need to implement methods and properties yourself. Just drop-in the BJDraggable file to your project and all done)* utilizing the powerful `UIKitDynamics` API, which makes **ANY** `UIView` draggable within a boundary view that acts as collision body, with a single method call.
+ */
 @objc protocol BJDraggable: class {
     
     /**
@@ -51,7 +52,7 @@ var kResetPositionKey: String = "ResetPositionKey"
     
     /**
      Removes the power from you, to drag the view in question
-    */
+     */
     @objc func removeDraggability()
     
 }
@@ -59,6 +60,14 @@ var kResetPositionKey: String = "ResetPositionKey"
 
 ///Implementation of `BJDraggable` protocol
 extension UIView: BJDraggable {
+    
+    //
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //MARK:-
+    //MARK: Properties
+    //MARK:-
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //
     
     public var shouldResetViewPositionAfterRemovingDraggability: Bool {
         get {
@@ -107,42 +116,62 @@ extension UIView: BJDraggable {
         }
     }
     
+    //
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //MARK:-
+    //MARK: Method Implementations
+    //MARK:-
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //
+    
     final func addDraggability(withinView referenceView: UIView) {
         self.addDraggability(withinView: referenceView, withMargin: UIEdgeInsets.init(top: 0, left: 0, bottom: 0, right: 0))
     }
     
     final func addDraggability(withinView referenceView: UIView, withMargin insets:UIEdgeInsets) {
         
-        //We check if we had already added the drag power to view. If yes, we return and do nothing.
         guard self.animator == nil else { return }
         
-        //Important step. Pan gesture recognizer will not work without this being true.
-        self.isUserInteractionEnabled = true
+        ///////////////////////
+        /////Configuration/////
+        ///////////////////////
         
-        let panGestureRecognizer = UIPanGestureRecognizer.init(target: self, action: #selector(panGestureHandler(_:)))        
-        self.addGestureRecognizer(panGestureRecognizer)
+        performInitialConfiguration()
+        addPanGestureRecognizer()
         
-        let attachmentAnchorPoint = self.center
+        ////////////////////////////////////////////////
+        /////Getting Collision Items For Behaviours/////
+        ////////////////////////////////////////////////
         
-        //See `panGestureHandler` method for attachmentBehaviour usage.
-        let attachmentBehaviour = UIAttachmentBehavior.init(item: self, attachedToAnchor: attachmentAnchorPoint)
-        attachmentBehaviour.frequency = 0
-        attachmentBehaviour.damping = 0
+        let collisionItems = self.drawAndGetCollisionViewsAround(referenceView, withInsets: insets)
         
-        let collisionBehaviour = UICollisionBehavior.init(items: [self])
-        collisionBehaviour.translatesReferenceBoundsIntoBoundary = true
-        collisionBehaviour.collisionMode = .boundaries
-        collisionBehaviour.setTranslatesReferenceBoundsIntoBoundary(with: insets)
+        ////////////////////
+        /////Behaviours/////
+        ////////////////////
+        
+        let mainItemBehaviour = get(behaviour: "Main", forView: referenceView, insets: insets, for: collisionItems)!
+        let borderItemsBehaviour = get(behaviour: "Border", forView: referenceView, insets: insets, for: collisionItems)!
+        let collisionBehaviour = get(behaviour: "Collision", forView: referenceView, insets: insets, for: collisionItems)!
+        let attachmentBehaviour = get(behaviour: "Attachment", forView: referenceView, insets: insets, for: collisionItems)!
+        
+        //////////////////
+        /////Animator/////
+        //////////////////
         
         let animator = UIDynamicAnimator.init(referenceView: referenceView)
-        animator.addBehavior(attachmentBehaviour)
+        animator.addBehavior(mainItemBehaviour)
+        animator.addBehavior(borderItemsBehaviour)
         animator.addBehavior(collisionBehaviour)
+        animator.addBehavior(attachmentBehaviour)
         
-        //Store these variables using `objc_setAssociatedObject` for use in other places, as if these are instance variables.
+        /////////////////////
+        /////Persistence/////
+        /////////////////////
+        
         self.animator = animator
         self.referenceView = referenceView
-        self.attachmentBehaviour = attachmentBehaviour
-        self.panGestureRecognizer = panGestureRecognizer
+        self.attachmentBehaviour = attachmentBehaviour as? UIAttachmentBehavior
+        
     }
     
     final func removeDraggability() {
@@ -150,16 +179,171 @@ extension UIView: BJDraggable {
         self.translatesAutoresizingMaskIntoConstraints = !self.shouldResetViewPositionAfterRemovingDraggability
         self.animator?.removeAllBehaviors()
         
+        for view in (self.referenceView?.subviews)! {
+            if view.tag == 122 || view.tag == 222 || view.tag == 322 || view.tag == 422 {
+                view.removeFromSuperview()
+            }
+        }
+        
         self.referenceView = nil
         self.attachmentBehaviour = nil
         self.animator = nil
         self.panGestureRecognizer = nil
     }
     
+    //
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //MARK:-
+    //MARK: Helpers 1
+    //MARK:-
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //
+    
+    fileprivate func performInitialConfiguration() {
+        self.isUserInteractionEnabled = true
+    }
+    
+    fileprivate func addPanGestureRecognizer() {
+        let panGestureRecognizer = UIPanGestureRecognizer.init(target: self, action: #selector(self.panGestureHandler(_:)))
+        self.addGestureRecognizer(panGestureRecognizer)
+        self.panGestureRecognizer = panGestureRecognizer
+    }
+    
     @objc final func panGestureHandler(_ gesture: UIPanGestureRecognizer) {
         guard let referenceView = self.referenceView else { return }
         let touchPoint = gesture.location(in: referenceView)
         self.attachmentBehaviour?.anchorPoint = touchPoint
+    }
+    
+    fileprivate func get(behaviour:String, forView referenceView:UIView, insets:UIEdgeInsets, for boundaryCollisionItems:[UIDynamicItem]) -> UIDynamicBehavior? {
+        
+        let allItems = [self] + boundaryCollisionItems
+        
+        switch behaviour {
+        case "Border":
+            let borderItemsBehaviour = UIDynamicItemBehavior.init(items: boundaryCollisionItems)
+            borderItemsBehaviour.allowsRotation = false
+            borderItemsBehaviour.isAnchored = true
+            borderItemsBehaviour.friction = 2.0
+            return borderItemsBehaviour
+        case "Main":
+            let mainItemBehaviour = UIDynamicItemBehavior.init(items: [self])
+            mainItemBehaviour.allowsRotation = false
+            mainItemBehaviour.isAnchored = false
+            mainItemBehaviour.friction = 2.0
+            return mainItemBehaviour
+        case "Collision":
+            let collisionBehaviour = UICollisionBehavior.init(items: allItems)
+            collisionBehaviour.collisionMode = .items
+            collisionBehaviour.addBoundary(withIdentifier: "Boundary" as NSCopying, for: self.boundaryPathFor(referenceView))
+            return collisionBehaviour
+        case "Attachment":
+            let attachmentBehaviour = UIAttachmentBehavior.init(item: self, attachedToAnchor: self.center)
+            return attachmentBehaviour
+        default:
+            return nil
+        }
+        
+    }
+    
+    //
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //MARK:-
+    //MARK: Helpers 2
+    //MARK:-
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //
+    
+    func alteredFrameByPoints(_ point:CGFloat) -> CGRect {
+        
+        var newFrame = self.frame
+        
+        newFrame.origin.x -= point
+        newFrame.origin.y -= point
+        newFrame.size.width += point * 2
+        newFrame.size.height += point * 2
+        
+        return newFrame
+    }
+    
+    fileprivate func boundaryPathFor(_ view:UIView) -> UIBezierPath {
+        let cgPath = CGPath.init(rect: view.alteredFrameByPoints(2.0), transform:nil)
+        return UIBezierPath.init(cgPath: cgPath)
+    }
+    
+    fileprivate func getNewRectFrom(rect:CGRect, byApplying insets:UIEdgeInsets) -> CGRect {
+        
+        var newRect:CGRect = .zero
+        
+        let x = rect.origin.x + insets.left
+        let y = rect.origin.y + insets.top
+        
+        let width = rect.width - insets.right
+        let height = rect.height - insets.bottom
+        
+        newRect.origin.x = x
+        newRect.origin.y = y
+        newRect.size.width = width
+        newRect.size.height = height
+        
+        return newRect
+    }
+    
+    @discardableResult
+    fileprivate func drawAndGetCollisionViewsAround(_ referenceView:UIView, withInsets insets:UIEdgeInsets) -> ([UIView]) {
+        
+        let boundaryViewWidth = CGFloat(1)
+        let boundaryViewHeight = CGFloat(1)
+        
+        ////////////////////
+        ////Get New Rect////
+        ////////////////////
+        
+        let newReferenceViewRect = self.getNewRectFrom(rect:referenceView.alteredFrameByPoints(1),
+                                                       byApplying:insets)
+        
+        ////////////
+        ////Left////
+        ////////////
+        
+        let leftView = UIView(frame: CGRect.init(x: newReferenceViewRect.origin.x - (boundaryViewWidth - 1), y: newReferenceViewRect.origin.y, width: boundaryViewWidth, height: newReferenceViewRect.size.height - insets.bottom))
+        leftView.isUserInteractionEnabled = false
+        leftView.tag = 122
+        
+        /////////////
+        ////Right////
+        /////////////
+        
+        let rightView = UIView(frame: CGRect.init(x: newReferenceViewRect.size.width - 2.0, y: newReferenceViewRect.origin.y, width: boundaryViewWidth, height: newReferenceViewRect.size.height - insets.bottom))
+        rightView.isUserInteractionEnabled = false
+        rightView.tag = 222
+        
+        ///////////
+        ////Top////
+        ///////////
+        
+        let topView = UIView(frame: CGRect.init(x: newReferenceViewRect.origin.x, y: newReferenceViewRect.origin.y - (boundaryViewHeight - 1), width: newReferenceViewRect.size.width - insets.right, height: boundaryViewHeight))
+        topView.isUserInteractionEnabled = false
+        topView.tag = 322
+        
+        //////////////
+        ////Bottom////
+        //////////////
+        
+        let bottomView = UIView(frame: CGRect.init(x: newReferenceViewRect.origin.x, y: newReferenceViewRect.size.height - 2.0, width: newReferenceViewRect.size.width - insets.right, height: boundaryViewHeight))
+        bottomView.isUserInteractionEnabled = false
+        bottomView.tag = 422
+        
+        ///////////////////
+        ////Add Subview////
+        ///////////////////
+        
+        referenceView.addSubview(leftView)
+        referenceView.addSubview(rightView)
+        referenceView.addSubview(topView)
+        referenceView.addSubview(bottomView)
+        
+        return [leftView, rightView, topView, bottomView]
     }
     
 }
