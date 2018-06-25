@@ -43,6 +43,9 @@ self.draggableImageView.addDraggability(withinView: self.view, withMargin: UIEdg
 
 - To visually highlight the boundary lines within which the drag will happen, you can make `isDraggableDebugModeEnabled` property to `true`. The effective boundary (with margins applied) will be highlighted in red color. Specifying your own color will be added in the next or subsequent commits.
 
+## Limitations
+- Currently, due to the nature of the implementation, the draggability will not work well with rounded-corner views, since invisible walls are drawn around the superview separately in the manner like `left`, `right`, `top`, `bottom` to simulate boundary.
+- This could be overcome by eliminating the use of imaginary special views and instead, using real boundaries with paths. BUT this method comes with one little caveat that, the view that you're dragging will not slide against the walls, they just stick to it.
 
 ## License
 
