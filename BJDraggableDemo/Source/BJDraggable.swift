@@ -27,17 +27,25 @@
 
 import UIKit
 
-var kReferenceViewKey: String = "ReferenceViewKey"
-var kDynamicAnimatorKey: String = "DynamicAnimatorKey"
-var kAttachmentBehaviourKey: String = "AttachmentBehaviourKey"
-var kPanGestureKey: String = "PanGestureKey"
-var kResetPositionKey: String = "ResetPositionKey"
+fileprivate var kReferenceViewKey: UInt8 = 0
+fileprivate var kDynamicAnimatorKey: UInt8 = 0
+fileprivate var kAttachmentBehaviourKey: UInt8 = 0
+fileprivate var kPanGestureKey: UInt8 = 0
+fileprivate var kResetPositionKey: UInt8 = 0
+fileprivate var kDebugModeEnabledKey: UInt8 = 0
 
-fileprivate enum BehaviourNames {
+fileprivate enum BehaviourName {
     case main
     case border
     case collision
     case attachment
+}
+
+fileprivate enum UniqueBorderViewTag:Int {
+    case left = 223420
+    case right = 223421
+    case top = 223422
+    case bottom = 223423
 }
 
 /**A simple protocol *(No need to implement methods and properties yourself. Just drop-in the BJDraggable file to your project and all done)* utilizing the powerful `UIKitDynamics` API, which makes **ANY** `UIView` draggable within a boundary view that acts as collision body, with a single method call.
@@ -64,8 +72,6 @@ fileprivate enum BehaviourNames {
     
 }
 
-
-///Implementation of `BJDraggable` protocol
 extension UIView: BJDraggable {
     
     //
@@ -76,10 +82,22 @@ extension UIView: BJDraggable {
     //////////////////////////////////////////////////////////////////////////////////////////
     //
     
+    /**
+     * This will highlight the boundary views in red color for having an idea with which area you are dragging your view(s) in.
+     */
+    public var isDraggableDebugModeEnabled: Bool {
+        get {
+            return objc_getAssociatedObject(self, &kDebugModeEnabledKey) as? Bool ?? false
+        }
+        set {
+            objc_setAssociatedObject(self, &kDebugModeEnabledKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            self.highlightBoundaryViews(newValue)
+        }
+    }
+    
     public var shouldResetViewPositionAfterRemovingDraggability: Bool {
         get {
-            let getValue = (objc_getAssociatedObject(self, &kResetPositionKey) as? Bool)
-            return getValue == nil ? false : getValue!
+            return objc_getAssociatedObject(self, &kResetPositionKey) as? Bool ?? false
         }
         set {
             objc_setAssociatedObject(self, &kResetPositionKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -182,13 +200,14 @@ extension UIView: BJDraggable {
     }
     
     final func removeDraggability() {
+        
         if let recognizer = self.panGestureRecognizer { self.removeGestureRecognizer(recognizer) }
         self.translatesAutoresizingMaskIntoConstraints = !self.shouldResetViewPositionAfterRemovingDraggability
         self.animator?.removeAllBehaviors()
         
         if let subviews = self.referenceView?.subviews {
             for view in subviews {
-                if view.tag == 122 || view.tag == 222 || view.tag == 322 || view.tag == 422 {
+                if view.isKind(of: BoundaryCollisionView.self) {
                     view.removeFromSuperview()
                 }
             }
@@ -224,7 +243,7 @@ extension UIView: BJDraggable {
         self.attachmentBehaviour?.anchorPoint = touchPoint
     }
     
-    fileprivate func get(behaviour:BehaviourNames, for referenceView:UIView, withInsets:UIEdgeInsets, configuredWith boundaryCollisionItems:[UIDynamicItem]) -> UIDynamicBehavior? {
+    fileprivate func get(behaviour:BehaviourName, for referenceView:UIView, withInsets:UIEdgeInsets, configuredWith boundaryCollisionItems:[UIDynamicItem]) -> UIDynamicBehavior? {
         
         let allItems = [self] + boundaryCollisionItems
         
@@ -261,20 +280,7 @@ extension UIView: BJDraggable {
     //
     
     func alteredFrameByPoints(_ point:CGFloat) -> CGRect {
-        
-        var newFrame = self.frame
-        
-        newFrame.origin.x -= point
-        newFrame.origin.y -= point
-        newFrame.size.width += point * 2
-        newFrame.size.height += point * 2
-        
-        return newFrame
-    }
-    
-    fileprivate func boundaryPathFor(_ view:UIView) -> UIBezierPath {
-        let cgPath = CGPath.init(rect: view.alteredFrameByPoints(2.0), transform:nil)
-        return UIBezierPath.init(cgPath: cgPath)
+        return self.frame.insetBy(dx: -point, dy: -point)
     }
     
     fileprivate func getNewRectFrom(rect:CGRect, byApplying insets:UIEdgeInsets) -> CGRect {
@@ -295,8 +301,20 @@ extension UIView: BJDraggable {
         return newRect
     }
     
-    @discardableResult
-    fileprivate func drawAndGetCollisionViewsAround(_ referenceView:UIView, withInsets insets:UIEdgeInsets) -> ([UIView]) {
+    fileprivate func boundaryPathFor(_ view:UIView) -> UIBezierPath {
+        let cgPath = CGPath.init(rect: view.alteredFrameByPoints(2.0), transform:nil)
+        return UIBezierPath.init(cgPath: cgPath)
+    }
+    
+    fileprivate func highlightBoundaryViews(_ yes:Bool) {
+        guard let referenceView = self.referenceView else { return }
+        referenceView.viewWithTag(UniqueBorderViewTag.left.rawValue)?.backgroundColor = yes ? .red : .clear
+        referenceView.viewWithTag(UniqueBorderViewTag.right.rawValue)?.backgroundColor = yes ? .red : .clear
+        referenceView.viewWithTag(UniqueBorderViewTag.top.rawValue)?.backgroundColor = yes ? .red : .clear
+        referenceView.viewWithTag(UniqueBorderViewTag.bottom.rawValue)?.backgroundColor = yes ? .red : .clear
+    }
+    
+    @discardableResult fileprivate func drawAndGetCollisionViewsAround(_ referenceView:UIView, withInsets insets:UIEdgeInsets) -> ([UIView]) {
         
         let boundaryViewWidth = CGFloat(1)
         let boundaryViewHeight = CGFloat(1)
@@ -305,40 +323,43 @@ extension UIView: BJDraggable {
         ////Get New Rect////
         ////////////////////
         
-        let newReferenceViewRect = self.getNewRectFrom(rect:referenceView.alteredFrameByPoints(1),
-                                                       byApplying:insets)
+        let newReferenceViewRect = getNewRectFrom(rect: referenceView.alteredFrameByPoints(1), byApplying: insets)
         
         ////////////
         ////Left////
         ////////////
         
-        let leftView = UIView(frame: CGRect.init(x: newReferenceViewRect.origin.x - (boundaryViewWidth - 1), y: newReferenceViewRect.origin.y, width: boundaryViewWidth, height: newReferenceViewRect.size.height - insets.bottom))
+        let leftView = BoundaryCollisionView(frame: CGRect.init(x: newReferenceViewRect.origin.x - (boundaryViewWidth - 1), y: newReferenceViewRect.origin.y, width: boundaryViewWidth, height: newReferenceViewRect.size.height - insets.bottom))
         leftView.isUserInteractionEnabled = false
-        leftView.tag = 122
+        leftView.tag = UniqueBorderViewTag.left.rawValue
+        leftView.backgroundColor = isDraggableDebugModeEnabled ? .red : .clear
         
         /////////////
         ////Right////
         /////////////
         
-        let rightView = UIView(frame: CGRect.init(x: newReferenceViewRect.size.width - 2.0, y: newReferenceViewRect.origin.y, width: boundaryViewWidth, height: newReferenceViewRect.size.height - insets.bottom))
+        let rightView = BoundaryCollisionView(frame: CGRect.init(x: newReferenceViewRect.size.width - 2.0, y: newReferenceViewRect.origin.y, width: boundaryViewWidth, height: newReferenceViewRect.size.height - insets.bottom))
         rightView.isUserInteractionEnabled = false
-        rightView.tag = 222
+        rightView.tag = UniqueBorderViewTag.right.rawValue
+        rightView.backgroundColor = isDraggableDebugModeEnabled ? .red : .clear
         
         ///////////
         ////Top////
         ///////////
         
-        let topView = UIView(frame: CGRect.init(x: newReferenceViewRect.origin.x, y: newReferenceViewRect.origin.y - (boundaryViewHeight - 1), width: newReferenceViewRect.size.width - insets.right, height: boundaryViewHeight))
+        let topView = BoundaryCollisionView(frame: CGRect.init(x: newReferenceViewRect.origin.x, y: newReferenceViewRect.origin.y - (boundaryViewHeight - 1), width: newReferenceViewRect.size.width - insets.right, height: boundaryViewHeight))
         topView.isUserInteractionEnabled = false
-        topView.tag = 322
+        topView.tag = UniqueBorderViewTag.top.rawValue
+        topView.backgroundColor = isDraggableDebugModeEnabled ? .red : .clear
         
         //////////////
         ////Bottom////
         //////////////
         
-        let bottomView = UIView(frame: CGRect.init(x: newReferenceViewRect.origin.x, y: newReferenceViewRect.size.height - 2.0, width: newReferenceViewRect.size.width - insets.right, height: boundaryViewHeight))
+        let bottomView = BoundaryCollisionView(frame: CGRect.init(x: newReferenceViewRect.origin.x, y: newReferenceViewRect.size.height - 2.0, width: newReferenceViewRect.size.width - insets.right, height: boundaryViewHeight))
         bottomView.isUserInteractionEnabled = false
-        bottomView.tag = 422
+        bottomView.tag = UniqueBorderViewTag.bottom.rawValue
+        bottomView.backgroundColor = isDraggableDebugModeEnabled ? .red : .clear
         
         ///////////////////
         ////Add Subview////
@@ -353,3 +374,8 @@ extension UIView: BJDraggable {
     }
     
 }
+
+/**
+ This is a special view for unique identification that gets invisibly added as a subview to the reference view for creating boundary around it.
+ */
+class BoundaryCollisionView: UIView { }
