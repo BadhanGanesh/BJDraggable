@@ -164,24 +164,24 @@ extension UIView: BJDraggable {
         performInitialConfiguration()
         addPanGestureRecognizer()
         
-        ////////////////////////////////////////////////
-        /////Getting Collision Items For Behaviours/////
-        ////////////////////////////////////////////////
+        ////////////////////////////////////////////
+        /////Get Collision Items For Behaviours/////
+        ////////////////////////////////////////////
         
         let collisionItems = self.drawAndGetCollisionViewsAround(referenceView, withInsets: insets)
         
-        ////////////////////
-        /////Behaviours/////
-        ////////////////////
+        ////////////////////////
+        /////Get Behaviours/////
+        ////////////////////////
         
         let mainItemBehaviour = get(behaviour: .main, for: referenceView, withInsets: insets, configuredWith: collisionItems)!
         let borderItemsBehaviour = get(behaviour: .border, for: referenceView, withInsets: insets, configuredWith: collisionItems)!
         let collisionBehaviour = get(behaviour: .collision, for: referenceView, withInsets: insets, configuredWith: collisionItems)!
         let attachmentBehaviour = get(behaviour: .attachment, for: referenceView, withInsets: insets, configuredWith: collisionItems)!
         
-        //////////////////
-        /////Animator/////
-        //////////////////
+        ////////////////////////////////////
+        /////Add Behaviours to Animator/////
+        ////////////////////////////////////
         
         let animator = UIDynamicAnimator.init(referenceView: referenceView)
         animator.addBehavior(mainItemBehaviour)
@@ -319,51 +319,51 @@ extension UIView: BJDraggable {
         let boundaryViewWidth = CGFloat(1)
         let boundaryViewHeight = CGFloat(1)
         
-        ////////////////////
-        ////Get New Rect////
-        ////////////////////
+        //////////////////////
+        /////Get New Rect/////
+        //////////////////////
         
         let newReferenceViewRect = getNewRectFrom(rect: referenceView.alteredFrameByPoints(1), byApplying: insets)
         
-        ////////////
-        ////Left////
-        ////////////
+        /////////////////////////////
+        /////Fabricate Left View/////
+        /////////////////////////////
         
         let leftView = BoundaryCollisionView(frame: CGRect.init(x: newReferenceViewRect.origin.x - (boundaryViewWidth - 1), y: newReferenceViewRect.origin.y, width: boundaryViewWidth, height: newReferenceViewRect.size.height - insets.bottom))
         leftView.isUserInteractionEnabled = false
         leftView.tag = UniqueBorderViewTag.left.rawValue
         leftView.backgroundColor = isDraggableDebugModeEnabled ? .red : .clear
         
-        /////////////
-        ////Right////
-        /////////////
+        //////////////////////////////
+        /////Fabricate Right View/////
+        //////////////////////////////
         
         let rightView = BoundaryCollisionView(frame: CGRect.init(x: newReferenceViewRect.size.width - 2.0, y: newReferenceViewRect.origin.y, width: boundaryViewWidth, height: newReferenceViewRect.size.height - insets.bottom))
         rightView.isUserInteractionEnabled = false
         rightView.tag = UniqueBorderViewTag.right.rawValue
         rightView.backgroundColor = isDraggableDebugModeEnabled ? .red : .clear
         
-        ///////////
-        ////Top////
-        ///////////
+        ////////////////////////////
+        /////Fabricate Top View/////
+        ////////////////////////////
         
         let topView = BoundaryCollisionView(frame: CGRect.init(x: newReferenceViewRect.origin.x, y: newReferenceViewRect.origin.y - (boundaryViewHeight - 1), width: newReferenceViewRect.size.width - insets.right, height: boundaryViewHeight))
         topView.isUserInteractionEnabled = false
         topView.tag = UniqueBorderViewTag.top.rawValue
         topView.backgroundColor = isDraggableDebugModeEnabled ? .red : .clear
         
-        //////////////
-        ////Bottom////
-        //////////////
+        ///////////////////////////////
+        /////Fabricate Bottom View/////
+        ///////////////////////////////
         
         let bottomView = BoundaryCollisionView(frame: CGRect.init(x: newReferenceViewRect.origin.x, y: newReferenceViewRect.size.height - 2.0, width: newReferenceViewRect.size.width - insets.right, height: boundaryViewHeight))
         bottomView.isUserInteractionEnabled = false
         bottomView.tag = UniqueBorderViewTag.bottom.rawValue
         bottomView.backgroundColor = isDraggableDebugModeEnabled ? .red : .clear
         
-        ///////////////////
-        ////Add Subview////
-        ///////////////////
+        /////////////////////
+        /////Add Subview/////
+        /////////////////////
         
         referenceView.addSubview(leftView)
         referenceView.addSubview(rightView)
