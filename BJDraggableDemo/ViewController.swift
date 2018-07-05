@@ -15,14 +15,14 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         self.draggableButton.shouldResetViewPositionAfterRemovingDraggability = true
-        self.draggableImageView.shouldResetViewPositionAfterRemovingDraggability = true
+        self.draggableImageView.shouldResetViewPositionAfterRemovingDraggability = true                
     }
     
     @IBAction func addDraggabilityButtonTouched(_ sender: UIButton) {
-        self.draggableButton.addDraggability(withinView: self.view)
-        self.draggableImageView.addDraggability(withinView: self.view,
-                                                withMargin: UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10))
+        self.draggableButton.addDraggability(withinView: self.view, withMargin: .init(top: 40, left: 100, bottom: 20, right: 20))
+        self.draggableImageView.addDraggability(withinView: self.view)
     }
     
     @IBAction func removeDraggabilityButtonTouched(_ sender: UIButton) {

@@ -243,7 +243,7 @@ extension UIView: BJDraggable {
         self.attachmentBehaviour?.anchorPoint = touchPoint
     }
     
-    fileprivate func get(behaviour:BehaviourName, for referenceView:UIView, withInsets:UIEdgeInsets, configuredWith boundaryCollisionItems:[UIDynamicItem]) -> UIDynamicBehavior? {
+    fileprivate func get(behaviour:BehaviourName, for referenceView:UIView, withInsets insets:UIEdgeInsets, configuredWith boundaryCollisionItems:[UIDynamicItem]) -> UIDynamicBehavior? {
         
         let allItems = [self] + boundaryCollisionItems
         
@@ -252,18 +252,18 @@ extension UIView: BJDraggable {
             let borderItemsBehaviour = UIDynamicItemBehavior.init(items: boundaryCollisionItems)
             borderItemsBehaviour.allowsRotation = false
             borderItemsBehaviour.isAnchored = true
-            borderItemsBehaviour.friction = 2.0
+            borderItemsBehaviour.elasticity = 100
             return borderItemsBehaviour
         case .main:
             let mainItemBehaviour = UIDynamicItemBehavior.init(items: [self])
             mainItemBehaviour.allowsRotation = false
             mainItemBehaviour.isAnchored = false
-            mainItemBehaviour.friction = 2.0
+            mainItemBehaviour.elasticity = 100
             return mainItemBehaviour
         case .collision:
             let collisionBehaviour = UICollisionBehavior.init(items: allItems)
             collisionBehaviour.collisionMode = .items
-            collisionBehaviour.addBoundary(withIdentifier: "Boundary" as NSCopying, for: self.boundaryPathFor(referenceView))
+            collisionBehaviour.setTranslatesReferenceBoundsIntoBoundary(with: insets)
             return collisionBehaviour
         case .attachment:
             let attachmentBehaviour = UIAttachmentBehavior.init(item: self, attachedToAnchor: self.center)
@@ -283,10 +283,16 @@ extension UIView: BJDraggable {
         return self.frame.insetBy(dx: -point, dy: -point)
     }
     
-    fileprivate func boundaryPathFor(_ view:UIView) -> UIBezierPath {
-        var rect = view.alteredFrameByPoints(3)
-        rect.origin.x = -3.0
-        rect.origin.y = -3.0
+    fileprivate func boundaryPathFor(_ view:UIView, withInsets insets:UIEdgeInsets) -> UIBezierPath {
+        
+        let frameWithInsets = UIEdgeInsetsInsetRect(view.frame, insets)
+        var rect = frameWithInsets.insetBy(dx: -3, dy: -3)
+        
+        rect.origin.x = -3.0 - insets.left
+        rect.origin.y = -3.0 - insets.top
+        rect.size.width = -3.0 - insets.right
+        rect.size.height = -3.0 - insets.bottom
+        
         let path = UIBezierPath.init(rect: rect)
         return path
     }
@@ -314,7 +320,7 @@ extension UIView: BJDraggable {
         /////Fabricate Left View/////
         /////////////////////////////
         
-        let leftView = BoundaryCollisionView(frame: CGRect.init(x: -1.0 + insets.left, y: -1.0 + insets.top, width: boundaryViewWidth, height: newReferenceViewRect.size.height - insets.bottom))
+        let leftView = BoundaryCollisionView(frame: CGRect.init(x: -0.0 + insets.left, y: -0.0 + insets.top, width: boundaryViewWidth, height: newReferenceViewRect.size.height))
         leftView.isUserInteractionEnabled = false
         leftView.tag = UniqueBorderViewTag.left.rawValue
         leftView.backgroundColor = isDraggableDebugModeEnabled ? .red : .clear
@@ -323,7 +329,7 @@ extension UIView: BJDraggable {
         /////Fabricate Right View/////
         //////////////////////////////
         
-        let rightView = BoundaryCollisionView(frame: CGRect.init(x: newReferenceViewRect.size.width - 2.0, y:-1.0 + insets.top, width: boundaryViewWidth, height: newReferenceViewRect.size.height - insets.bottom))
+        let rightView = BoundaryCollisionView(frame: CGRect.init(x: newReferenceViewRect.size.width + insets.left - 3.0, y:-0.0 + insets.top, width: boundaryViewWidth, height: newReferenceViewRect.size.height))
         rightView.isUserInteractionEnabled = false
         rightView.tag = UniqueBorderViewTag.right.rawValue
         rightView.backgroundColor = isDraggableDebugModeEnabled ? .red : .clear
@@ -332,7 +338,7 @@ extension UIView: BJDraggable {
         /////Fabricate Top View/////
         ////////////////////////////
         
-        let topView = BoundaryCollisionView(frame: CGRect.init(x: -1.0 + insets.left, y: -1.0 + insets.top, width: newReferenceViewRect.size.width - insets.right - 1.0, height: boundaryViewHeight))
+        let topView = BoundaryCollisionView(frame: CGRect.init(x: -0.0 + insets.left, y: -0.0 + insets.top, width:newReferenceViewRect.size.width - 1.0, height: boundaryViewHeight))
         topView.isUserInteractionEnabled = false
         topView.tag = UniqueBorderViewTag.top.rawValue
         topView.backgroundColor = isDraggableDebugModeEnabled ? .red : .clear
@@ -341,7 +347,7 @@ extension UIView: BJDraggable {
         /////Fabricate Bottom View/////
         ///////////////////////////////
         
-        let bottomView = BoundaryCollisionView(frame: CGRect.init(x: -1.0 + insets.left, y: newReferenceViewRect.size.height - 1.0, width: newReferenceViewRect.size.width - 1.0 - insets.right, height: boundaryViewHeight))
+        let bottomView = BoundaryCollisionView(frame: CGRect.init(x: -0.0 + insets.left, y: insets.top + newReferenceViewRect.size.height - 3.0, width: newReferenceViewRect.size.width - 1.0, height: boundaryViewHeight))
         bottomView.isUserInteractionEnabled = false
         bottomView.tag = UniqueBorderViewTag.bottom.rawValue
         bottomView.backgroundColor = isDraggableDebugModeEnabled ? .red : .clear
