@@ -1,5 +1,5 @@
 # BJDraggable
-A simple protocol *(No need to subclass, no need to implement methods and properties yourself. Just drop-in the BJDraggable file to your project and all done)* utilizing the powerful `UIKitDynamics` API, which makes **ANY** `UIView` draggable within a boundary view that acts as collision body, with a single method call.
+A simple protocol *(No need to subclass, no need to implement methods and properties yourself. Just drop the BJDraggable file into your project)* utilizing the powerful `UIKitDynamics` API, which makes **ANY** `UIView` draggable within a boundary view that acts as collision body, with a single method call.
 
 <img src="./Resources/BJDraggable.gif" alt="BJDraggable Demo" width="300" height="533">
 
@@ -14,8 +14,10 @@ A simple protocol *(No need to subclass, no need to implement methods and proper
 ```swift
 override func viewDidLoad() {
     super.viewDidLoad()
-    self.draggableButton.addDraggability(withinView: self.view)
-    self.draggableImageView.addDraggability(withinView: self.view)
+    self.loginView.addDraggability(withinView: self.view)
+    self.omegaView.addDraggability(withinView: self.omegaContainerView)
+    self.omegaContainerView.addDraggability(withinView: self.view)
+    self.signupButton.addDraggability(withinView: self.view)
 }
 ```
 
@@ -23,7 +25,7 @@ override func viewDidLoad() {
 - You can also add margin to your boundary view by passing in a `UIEdgeInsets` parameter:
 
 ```swift
-self.draggableImageView.addDraggability(withinView: self.view, withMargin: UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10))
+self.loginView.addDraggability(withinView: self.view, withMargin: UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10))
 ```
 
 
@@ -31,8 +33,10 @@ self.draggableImageView.addDraggability(withinView: self.view, withMargin: UIEdg
 
 ```swift
 @IBAction func removeDraggabilityButtonTouched(_ sender: UIButton) {
-    self.draggableButton.removeDraggability()
-    self.draggableImageView.removeDraggability()
+    self.loginView.removeDraggability()
+    self.omegaView.removeDraggability()
+    self.omegaContainerView.removeDraggability()
+    self.signupButton.removeDraggability()
 }
 ```
 
