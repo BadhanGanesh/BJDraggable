@@ -149,11 +149,11 @@ extension UIView: BJDraggable {
     //////////////////////////////////////////////////////////////////////////////////////////
     //
     
-    final func addDraggability(withinView referenceView: UIView) {
+    public final func addDraggability(withinView referenceView: UIView) {
         self.addDraggability(withinView: referenceView, withMargin: UIEdgeInsets.init(top: 0, left: 0, bottom: 0, right: 0))
     }
     
-    final func addDraggability(withinView referenceView: UIView, withMargin insets:UIEdgeInsets) {
+    public final func addDraggability(withinView referenceView: UIView, withMargin insets:UIEdgeInsets) {
         
         guard self.animator == nil else { return }
         
@@ -199,7 +199,7 @@ extension UIView: BJDraggable {
         
     }
     
-    final func removeDraggability() {
+    public final func removeDraggability() {
         
         if let recognizer = self.panGestureRecognizer { self.removeGestureRecognizer(recognizer) }
         self.translatesAutoresizingMaskIntoConstraints = !self.shouldResetViewPositionAfterRemovingDraggability

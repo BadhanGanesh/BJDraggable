@@ -3,11 +3,15 @@ A simple protocol *(No need to subclass, no need to implement methods and proper
 
 <img src="./Resources/BJDraggable.gif" alt="BJDraggable Demo" width="300" height="533">
 
+## Installation
+
+Use `pod 'BJDraggable'`
+
+**OR**
+
+Drag and Drop the **BJDraggable.swift** file (Located inside the Source folder in repo.) into your Xcode project.
 
 ## Usage
-
-- Drag and Drop the **BJDraggable.swift** file (Located inside the Source folder) into your Xcode project.
-
 
 - Just call the `addDraggability` method on your view and pass in a boundary view and that's it:
 
