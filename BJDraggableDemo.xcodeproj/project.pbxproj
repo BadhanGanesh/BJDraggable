@@ -12,7 +12,6 @@
 		53BC1A0D20AF6E4A00121C13 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 53BC1A0B20AF6E4A00121C13 /* Main.storyboard */; };
 		53BC1A0F20AF6E4C00121C13 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 53BC1A0E20AF6E4C00121C13 /* Assets.xcassets */; };
 		53BC1A1220AF6E4C00121C13 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 53BC1A1020AF6E4C00121C13 /* LaunchScreen.storyboard */; };
-		A6E7B35920DCE00300D71439 /* GOW.jpg in Resources */ = {isa = PBXBuildFile; fileRef = A6E7B35820DCE00300D71439 /* GOW.jpg */; };
 		A6E8892320EB96A70014B5D8 /* BJDraggable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6E8892220EB96A60014B5D8 /* BJDraggable.swift */; };
 /* End PBXBuildFile section */
 
@@ -24,7 +23,6 @@
 		53BC1A0E20AF6E4C00121C13 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		53BC1A1120AF6E4C00121C13 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		53BC1A1320AF6E4C00121C13 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A6E7B35820DCE00300D71439 /* GOW.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = GOW.jpg; sourceTree = "<group>"; };
 		A6E8892220EB96A60014B5D8 /* BJDraggable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BJDraggable.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -58,7 +56,6 @@
 		53BC1A0620AF6E4A00121C13 /* BJDraggableDemo */ = {
 			isa = PBXGroup;
 			children = (
-				A6E7B35820DCE00300D71439 /* GOW.jpg */,
 				53BC1A1920AF6E5600121C13 /* Source */,
 				53BC1A0720AF6E4A00121C13 /* AppDelegate.swift */,
 				53BC1A0920AF6E4A00121C13 /* ViewController.swift */,
@@ -139,7 +136,6 @@
 			files = (
 				53BC1A1220AF6E4C00121C13 /* LaunchScreen.storyboard in Resources */,
 				53BC1A0F20AF6E4C00121C13 /* Assets.xcassets in Resources */,
-				A6E7B35920DCE00300D71439 /* GOW.jpg in Resources */,
 				53BC1A0D20AF6E4A00121C13 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
