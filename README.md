@@ -25,7 +25,6 @@ override func viewDidLoad() {
 }
 ```
 
-
 - You can also add margin to your boundary view by passing in a `UIEdgeInsets` parameter:
 
 ```swift
@@ -43,6 +42,7 @@ self.loginView.addDraggability(withinView: self.view, withMargin: UIEdgeInsets(t
     self.signupButton.removeDraggability()
 }
 ```
+**Note:** Call `removeDraggability()` in the `deinit` of your `UIViewController` or `UIView` if your think you're done with it. This does the cleanup of memory and other variables used.
 
 ## Optional Usage
 
