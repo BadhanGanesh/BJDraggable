@@ -285,7 +285,7 @@ extension UIView: BJDraggable {
     
     fileprivate func boundaryPathFor(_ view:UIView, withInsets insets:UIEdgeInsets) -> UIBezierPath {
         
-        let frameWithInsets = UIEdgeInsetsInsetRect(view.frame, insets)
+        let frameWithInsets = view.frame.inset(by: insets)
         var rect = frameWithInsets.insetBy(dx: -3, dy: -3)
         
         rect.origin.x = -3.0 - insets.left
@@ -314,7 +314,7 @@ extension UIView: BJDraggable {
         /////Get New Rect/////
         //////////////////////
         
-        let newReferenceViewRect = UIEdgeInsetsInsetRect(referenceView.alteredFrameByPoints(1), insets)
+        let newReferenceViewRect = referenceView.alteredFrameByPoints(1).inset(by: insets)
         
         /////////////////////////////
         /////Fabricate Left View/////

@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "BJDraggable"
-  s.version      = "1.3"
+  s.version      = "1.4"
   s.summary      = "Enables any UIView to be dragged and dropped within a boundary view."
 
   s.description  = "A simple protocol utilising the powerful UIKitDynamics API, which makes ANY UIView draggable within a boundary view that acts as collision body, with a single method call. Works for any UIView."
@@ -58,7 +58,7 @@ Pod::Spec.new do |s|
 
   s.platform     = :ios
   s.platform     = :ios, "9.0"
-  s.swift_version = "4.0"
+  s.swift_version = "5.0"
 
   #  When using multiple platforms
   # s.ios.deployment_target = "5.0"
